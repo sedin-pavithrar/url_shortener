@@ -19,13 +19,16 @@
     {% if short_url %}
 
     <p>
-        ShortCode:
-        <strong>{{ short_url.short_code}}</strong>
+        Short URL :
+    <a href = "/{{ short_url.short_code}}"> {{request.build_absolute_url}} {{short_url.short_code}}
+
+    </a>
     </p>
 
     <p>
         Original Url:
-        <strong>{{short_url.original_url}}</strong>
+        <a href = "/{{ short_url.original_url }}" target = "_blank" >
+        {{short_url.original_url}} </a>
     </p>
     {% endif %}
 

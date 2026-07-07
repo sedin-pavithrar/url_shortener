@@ -2,6 +2,8 @@ from django.shortcuts import render
 from .models import ShortURL
 from .forms import GetUrl
 from .utils import unique_code
+from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 
 def home_view (request):
     short_url = None 
@@ -27,7 +29,16 @@ def home_view (request):
     return render(request,"shortener/home.html",context)
 
     
+def redirect_url(request,short_code):
+    url = get_object_or_404(
+        ShortURL,
+        short_code= short_code
 
+    )
+    url.clicks +=1
+    url.save()
+
+    return redirect(url.original_url)
 
 
 
