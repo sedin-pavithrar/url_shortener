@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+<h1>URL Dashboard</h1>
+
+<table border="1">
+
+<tr>
+    <th>Original URL</th>
+    <th>Short URL</th>
+    <th>Clicks</th>
+    <th>Created At</th>
+</tr>
+
+
+{% for url in urls %}
+<tr>
+    <td>
+        <a href="{{ url.original_url }}">
+    {{ url.original_url }}
+        </a>
+   </td>
+
+<td>
+<a href="/{{ url.short_code }}">
+    {{ request.scheme }}://{{ request.get_host }}/{{ url.short_code }}
+</a>
+</td>
+
+
+<td>
+{{ url.clicks }}
+</td>
+
+
+<td>
+{{ url.created_at }}
+</td>
+
+</tr>
+
+
+{% empty %}
+
+<tr>
+<td colspan="4">
+No URLs created yet
+</td>
+</tr>
+
+{% endfor %}
+
+
+</table>
+
+</body>
+</html>
