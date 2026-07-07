@@ -7,6 +7,7 @@ Configure templates and static files
 Create the ShortURL model
 Run migrations
 Register the model in the admin
+created superuser
 
 Phase 2 – URL Creation
 Build a form to accept a URL
@@ -39,3 +40,19 @@ QR code generation
 Expiration dates
 User login (so each user manages only their own links)
 
+User enters
+        │
+        ▼
+https://www.google.com/maps
+        │
+        ▼
+Generate a unique short code
+        │
+        ▼
+aB3xY9
+        │
+        ▼
+Save both values to the database
+        │
+        ▼
+Display the shortened URL

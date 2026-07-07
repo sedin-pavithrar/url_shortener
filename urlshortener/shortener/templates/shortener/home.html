@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+    <p>Paste your long url below </p>
+    <form method = "POST">
+        {% csrf_token %}
+
+        {{form.as_p}}
+
+    <button type = "submit">Shorten URL </button>
+        </form>
+
+    {% if short_url %}
+
+    <p>
+        ShortCode:
+        <strong>{{ short_url.short_code}}</strong>
+    </p>
+
+    <p>
+        Original Url:
+        <strong>{{short_url.original_url}}</strong>
+    </p>
+    {% endif %}
+
+
+
+</body>
+</html>
