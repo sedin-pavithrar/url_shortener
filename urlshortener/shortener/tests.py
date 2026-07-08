@@ -65,7 +65,7 @@ class URLShortenerTests(TestCase):
     def test_api_endpoints(self):
         # 1. API POST to shorten (invalid data)
         response = self.client.post(
-            "/api/shorten",
+            "/api/shorten/",
             {"url": "invalid-url-format"},
             content_type="application/json",
         )
@@ -74,7 +74,7 @@ class URLShortenerTests(TestCase):
 
         # 2. API POST to shorten (valid data)
         response = self.client.post(
-            "/api/shorten",
+            "/api/shorten/",
             {"url": "https://stackoverflow.com"},
             content_type="application/json",
         )
@@ -87,14 +87,14 @@ class URLShortenerTests(TestCase):
         short_code = response.data["shortCode"]
 
         # 3. API GET to retrieve info
-        response = self.client.get(f"/api/shorten/{short_code}")
+        response = self.client.get(f"/api/shorten/{short_code}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["url"], "https://stackoverflow.com")
         self.assertEqual(response.data["shortCode"], short_code)
 
         # 4. API PUT to update url (valid data)
         response = self.client.put(
-            f"/api/shorten/{short_code}",
+            f"/api/shorten/{short_code}/",
             {"url": "https://github.com"},
             content_type="application/json",
         )
@@ -102,16 +102,16 @@ class URLShortenerTests(TestCase):
         self.assertEqual(response.data["url"], "https://github.com")
 
         # 5. API GET to retrieve stats
-        response = self.client.get(f"/api/shorten/{short_code}/stats")
+        response = self.client.get(f"/api/shorten/{short_code}/stats/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["url"], "https://github.com")
         self.assertIn("accessCount", response.data)
         self.assertEqual(response.data["accessCount"], 0)
 
         # 6. API DELETE to delete url
-        response = self.client.delete(f"/api/shorten/{short_code}")
+        response = self.client.delete(f"/api/shorten/{short_code}/")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # 7. Verify deletion
-        response = self.client.get(f"/api/shorten/{short_code}")
+        response = self.client.get(f"/api/shorten/{short_code}/")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

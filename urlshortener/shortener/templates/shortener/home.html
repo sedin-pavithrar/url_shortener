@@ -1,38 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Shortener</title>
-</head>
-<body>
-    <h1>URL Shortener</h1>
-    <p>Paste your long url below </p>
-    <form method = "POST">
+{% extends 'shortener/base.html' %}
+
+{% block title %}Shorten Link{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <h1>
+        Shorten Your <span class="gradient-text">Links</span>.<br>
+        Expand Your <span class="gradient-text">Reach</span>.
+    </h1>
+    <p>Create clean, memorable links in seconds. Track analytics and access counts in real-time using our beautiful dashboard.</p>
+</div>
+
+<!-- Input Form Card -->
+<div class="glass-card">
+    <form method="POST">
         {% csrf_token %}
 
-        {{form.as_p}}
+        <div class="form-group">
+            <label for="id_original_url" class="form-label">Original URL</label>
+            <div class="input-container">
+                <!-- SVG Link Icon -->
+                <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                </svg>
+                <input
+                    type="url"
+                    name="original_url"
+                    id="id_original_url"
+                    class="form-control"
+                    placeholder="Enter your destination link (https://...)"
+                    value="{% if form.original_url.value %}{{ form.original_url.value }}{% endif %}"
+                    required
+                >
+            </div>
+            {% if form.original_url.errors %}
+                <div class="error-msg" style="color: var(--color-danger); font-size: 0.875rem; margin-top: 0.25rem;">
+                    {{ form.original_url.errors|first }}
+                </div>
+            {% endif %}
+        </div>
 
-    <button type = "submit">Shorten URL </button>
-        </form>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <!-- SVG Sparkles or Link Icon -->
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Shorten Link
+        </button>
+    </form>
+</div>
 
-    {% if short_url %}
+<!-- Success Card Result -->
+{% if short_url %}
+<div class="glass-card result-card">
+    <div class="result-header">
+        <!-- SVG Checkmark Circle Icon -->
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Link Shortened Successfully!</span>
+    </div>
 
-    <p>
-        Short URL :
-    <a href="{% url 'redirect_url' short_url.short_code %}">{{request.scheme}}://{{request.get_host}}/{{short_url.short_code}}
+    <div class="result-row">
+        <span class="result-label">Short URL</span>
+        <div class="td-short">
+            <span class="result-value">
+                <a id="shortened-url" href="{% url 'redirect_url' short_url.short_code %}" target="_blank">
+                    {{request.scheme}}://{{request.get_host}}/{{short_url.short_code}}
+                </a>
+            </span>
+            <button class="btn-copy" onclick="copyLink()">
+                <svg id="copy-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                </svg>
+                <span id="copy-text">Copy</span>
+            </button>
+        </div>
+    </div>
 
-    </a>
-    </p>
+    <div class="result-row">
+        <span class="result-label">Original URL</span>
+        <span class="result-value">
+            <a href="{{ short_url.url }}" target="_blank" style="color: var(--text-secondary);">
+                {{short_url.url}}
+            </a>
+        </span>
+    </div>
+</div>
 
-    <p>
-        Original Url:
-        <a href = "{{ short_url.url }}" target = "_blank" >
-        {{short_url.url}} </a>
-    </p>
-    {% endif %}
+<script>
+    function copyLink() {
+        const urlText = document.getElementById('shortened-url').href;
+        navigator.clipboard.writeText(urlText).then(() => {
+            const copyText = document.getElementById('copy-text');
+            const copyIcon = document.getElementById('copy-icon');
 
+            copyText.innerText = 'Copied!';
+            // Change icon to a checkmark
+            copyIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>`;
 
-
-</body>
-</html>
+            setTimeout(() => {
+                copyText.innerText = 'Copy';
+                // Revert icon to clipboard
+                copyIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>`;
+            }, 2000);
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}
