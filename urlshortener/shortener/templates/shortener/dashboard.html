@@ -15,31 +15,51 @@
     <th>Short URL</th>
     <th>Clicks</th>
     <th>Created At</th>
+    <th>Actions</th>
 </tr>
 
 
 {% for url in urls %}
 <tr>
-    <td>
-        <a href="{{ url.original_url }}">
-    {{ url.original_url }}
-        </a>
-   </td>
+   <td>
+
+<form method="POST" action="{% url 'update_url' url.id %}">
+
+    {% csrf_token %}
+
+    <input
+        type="url"
+        name="original_url"
+        value="{{ url.url }}"
+        style="width:300px;"
+    >
+
+    <button type="submit">
+        Save
+    </button>
+
+</form>
+
+</td>
 
 <td>
-<a href="/{{ url.short_code }}">
+<a href="{% url 'redirect_url' url.short_code %}">
     {{ request.scheme }}://{{ request.get_host }}/{{ url.short_code }}
 </a>
 </td>
 
 
 <td>
-{{ url.clicks }}
+{{ url.access_count }}
 </td>
 
 
 <td>
 {{ url.created_at }}
+</td>
+
+<td>
+<a href="{% url 'delete_url' url.id %}" onclick="return confirm('Are you sure?')" style="color: red;">Delete</a>
 </td>
 
 </tr>
@@ -48,7 +68,7 @@
 {% empty %}
 
 <tr>
-<td colspan="4">
+<td colspan="5">
 No URLs created yet
 </td>
 </tr>

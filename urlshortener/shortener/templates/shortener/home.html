@@ -20,15 +20,15 @@
 
     <p>
         Short URL :
-    <a href = "/{{ short_url.short_code}}"> {{request.build_absolute_url}} {{short_url.short_code}}
+    <a href="{% url 'redirect_url' short_url.short_code %}">{{request.scheme}}://{{request.get_host}}/{{short_url.short_code}}
 
     </a>
     </p>
 
     <p>
         Original Url:
-        <a href = "/{{ short_url.original_url }}" target = "_blank" >
-        {{short_url.original_url}} </a>
+        <a href = "{{ short_url.url }}" target = "_blank" >
+        {{short_url.url}} </a>
     </p>
     {% endif %}
 
