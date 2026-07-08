@@ -4,6 +4,6 @@ set -o errexit
 
 pip install -r requirements.txt
 
-python manage.py collectstatic --no-input
+python urlshortener/manage.py collectstatic --no-input
 
-python manage.py migrate
+python urlshortener/manage.py migrate
