@@ -56,3 +56,38 @@ Save both values to the database
         │
         ▼
 Display the shortened URL
+
+
+
+1. Web Frontend (Browser Links)
+Home Page (URL Shortener Form): http://localhost:8000/
+Dashboard (Manage URLs & Statistics): http://localhost:8000/dashboard/
+Short URL Redirect Link: http://localhost:8000/<short_code>
+
+2. REST API Endpoints
+All API endpoints are under the /api/ prefix:
+
+Create Short URL
+URL: POST http://localhost:8000/api/shorten
+Payload Format:
+json
+{
+  "url": "https://www.example.com/some/long/url"
+}
+Retrieve Short URL Information
+
+URL: GET http://localhost:8000/api/shorten/<short_code>
+
+Update Short URL
+URL: PUT http://localhost:8000/api/shorten/<short_code>
+Payload Format:
+json
+{
+  "url": "https://www.example.com/some/updated/url"
+}
+p
+Delete Short URL
+URL: DELETE http://localhost:8000/api/shorten/<short_code>
+Get URL Statistics
+URL: GET http://localhost:8000/api/shorten/<short_code>/stats
+12:02 AM
