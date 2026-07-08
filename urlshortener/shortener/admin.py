@@ -3,4 +3,4 @@ from .models import ShortURL
 
 # Register your models here.
 
-admin.site.register (ShortURL)
+admin.site.register(ShortURL)

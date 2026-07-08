@@ -1,62 +1,160 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-</head>
+{% extends 'shortener/base.html' %}
 
-<body>
+{% block title %}Dashboard{% endblock %}
 
-<h1>URL Dashboard</h1>
+{% block content %}
+<!-- Stats Summary Grid -->
+<div class="stats-grid">
+    <!-- Stat 1: Total Links -->
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Total Links</span>
+            <span class="stat-value">{{ urls|length }}</span>
+        </div>
+        <div class="stat-icon-box stat-cyan">
+            <!-- SVG Link Icon -->
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+            </svg>
+        </div>
+    </div>
 
-<table border="1">
+    <!-- Stat 2: Total Clicks -->
+    <div class="stat-card">
+        <div class="stat-info">
+            <span class="stat-label">Total Redirections</span>
+            <span class="stat-value" id="total-clicks-val">0</span>
+        </div>
+        <div class="stat-icon-box stat-indigo">
+            <!-- SVG Cursor Click Icon -->
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+            </svg>
+        </div>
+    </div>
+</div>
 
-<tr>
-    <th>Original URL</th>
-    <th>Short URL</th>
-    <th>Clicks</th>
-    <th>Created At</th>
-</tr>
+<!-- Links Management Card -->
+<div class="glass-card dashboard-card">
+    <div class="dashboard-header-bar">
+        <h2 class="dashboard-title">Active Links</h2>
+        <span style="color: var(--accent-cyan); font-size: 0.875rem; font-weight: 600;">Manage links and track analytics</span>
+    </div>
 
+    {% if urls %}
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Original Destination URL (Editable)</th>
+                    <th>Shortened Link</th>
+                    <th>Redirections</th>
+                    <th>Created On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for url in urls %}
+                <tr>
+                    <td data-label="Original URL">
+                        <form method="POST" action="{% url 'update_url' url.id %}" class="edit-form">
+                            {% csrf_token %}
+                            <input
+                                type="url"
+                                name="original_url"
+                                value="{{ url.url }}"
+                                class="edit-input"
+                                title="Click to edit original URL"
+                                required
+                            >
+                            <button type="submit" class="btn-icon" title="Save changes">
+                                <!-- SVG Save / Check Icon -->
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </td>
+                    <td data-label="Shortened Link">
+                        <div class="td-short">
+                            <a href="{% url 'redirect_url' url.short_code %}" id="link-{{ url.id }}" target="_blank" style="color: var(--accent-cyan); font-weight: 600; text-decoration: none;">
+                                {{ request.scheme }}://{{ request.get_host }}/{{ url.short_code }}
+                            </a>
+                            <button class="btn-icon" onclick="copyTableLink('link-{{ url.id }}', this)" title="Copy short link">
+                                <svg id="copy-svg-{{ url.id }}" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                    <td data-label="Redirections">
+                        <span class="badge-clicks">
+                            <!-- SVG Clicks Icon -->
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <span class="click-count-val">{{ url.access_count }}</span>
+                        </span>
+                    </td>
+                    <td data-label="Created On">
+                        <span class="date-text">{{ url.created_at|date:"M d, Y" }}</span>
+                    </td>
+                    <td data-label="Actions">
+                        <a href="{% url 'delete_url' url.id %}" onclick="return confirm('Are you sure you want to delete this shortened URL?')" class="btn-danger btn">
+                            <!-- SVG Trash Icon -->
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:inline-block; vertical-align:middle; margin-right: 2px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <!-- SVG Folder Open Icon -->
+        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m16 0h-2.5m-8.5 0H5"></path>
+        </svg>
+        <h3>No links found</h3>
+        <p style="margin: 0.5rem 0 1.5rem; color: var(--text-muted);">You haven't shortened any links yet.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Shorten your first link</a>
+    </div>
+    {% endif %}
+</div>
 
-{% for url in urls %}
-<tr>
-    <td>
-        <a href="{{ url.original_url }}">
-    {{ url.original_url }}
-        </a>
-   </td>
+<!-- Inline JavaScript for Client-side Stats Calculations & Quick Copier -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Calculate Total clicks client-side
+        let totalClicks = 0;
+        const clickCells = document.querySelectorAll(".click-count-val");
+        clickCells.forEach(cell => {
+            totalClicks += parseInt(cell.textContent.trim()) || 0;
+        });
+        document.getElementById("total-clicks-val").textContent = totalClicks.toLocaleString();
+    });
 
-<td>
-<a href="/{{ url.short_code }}">
-    {{ request.scheme }}://{{ request.get_host }}/{{ url.short_code }}
-</a>
-</td>
-
-
-<td>
-{{ url.clicks }}
-</td>
-
-
-<td>
-{{ url.created_at }}
-</td>
-
-</tr>
-
-
-{% empty %}
-
-<tr>
-<td colspan="4">
-No URLs created yet
-</td>
-</tr>
-
-{% endfor %}
-
-
-</table>
-
-</body>
-</html>
+    function copyTableLink(linkId, buttonEl) {
+        const url = document.getElementById(linkId).href;
+        navigator.clipboard.writeText(url).then(() => {
+            const originalHTML = buttonEl.innerHTML;
+            // Set temporary success indicator icon
+            buttonEl.innerHTML = `
+                <svg width="14" height="14" fill="none" stroke="#14b8a6" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                </svg>
+            `;
+            setTimeout(() => {
+                buttonEl.innerHTML = originalHTML;
+            }, 1500);
+        }).catch(err => {
+            console.error('Could not copy link: ', err);
+        });
+    }
+</script>
+{% endblock %}
