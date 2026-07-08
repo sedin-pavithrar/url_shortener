@@ -40,6 +40,15 @@ def redirect_url(request,short_code):
 
     return redirect(url.original_url)
 
+def dashboard(request):
+    urls = ShortURL.objects.all().order_by("-created_at")
+
+    context = {
+        "urls":urls
+    }
+    
+    return render(request,"shortener/dashboard.html",context)
+
 
 
 
